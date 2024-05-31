@@ -1,0 +1,76 @@
+ALGORITHM Dijkstra
+VAR
+    graphe: OBJET
+    depart: CHAINE
+    distances: OBJET
+    filePriorite: FileDePriorite
+    sommetActuel: CHAINE
+    voisin: CHAINE
+    distance: ENTIER
+    cheminLePlusCourt: OBJET
+
+BEGIN
+    // Initialiser l'objet distances avec tous les sommets à l'infini sauf le sommet de départ à 0
+    distances = {}
+    POUR CHAQUE sommet DANS graphe FAIRE
+        SI sommet = depart ALORS
+            distances[sommet] = 0
+        SINON
+            distances[sommet] = Infini
+        FIN SI
+    FIN POUR
+
+    // Initialiser une file de priorité vide et ajouter le sommet de départ avec une distance de 0
+    filePriorite = NOUVELLE FileDePriorite()
+    filePriorite.enfiler(depart, 0)
+
+    // Initialiser un objet vide pour stocker le chemin le plus court
+    cheminLePlusCourt = {}
+
+    // Tant que la file de priorité n'est pas vide
+    TANT QUE NON filePriorite.estVide() FAIRE
+        // Défile le sommet avec la plus petite distance
+        sommetActuel = filePriorite.defiler()
+
+        // Obtenir les voisins du sommet actuel
+        POUR CHAQUE voisin DANS graphe[sommetActuel] FAIRE
+            // Calculer la distance jusqu'au voisin via le sommet actuel
+            distance = distances[sommetActuel] + graphe[sommetActuel][voisin]
+
+            // Si la distance calculée est inférieure à la distance connue
+            SI distance < distances[voisin] ALORS
+                // Mettre à jour la distance la plus courte vers le voisin
+                distances[voisin] = distance
+                // Enfiler le voisin avec la distance mise à jour
+                filePriorite.enfiler(voisin, distance)
+                // Mettre à jour le chemin le plus court
+                cheminLePlusCourt[voisin] = sommetActuel
+            FIN SI
+        FIN POUR
+    FIN TANT QUE
+
+    // Retourner l'objet distances
+    RETOUR distances
+END
+
+ALGORITHM FileDePriorite
+VAR
+    valeurs: TABLEAU D OBJETS
+
+BEGIN
+    FileDePriorite() // Constructeur
+        valeurs = []
+
+    METHODE enfiler(sommet: CHAINE, priorite: ENTIER)
+        valeurs.push({ sommet, priorite })
+        trier()
+
+    METHODE defiler() RETOURNE OBJET
+        RETOUR valeurs.shift()
+
+    METHODE estVide() RETOURNE BOOLEEN
+        RETOUR valeurs.length = 0
+
+    METHODE trier()
+        valeurs.sort((a, b) => a.priorite - b.priorite)
+END
